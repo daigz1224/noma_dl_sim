@@ -93,11 +93,22 @@ end
 
 for tti = 1:1:P.time
     
-    %% 5.波束赋形
+    %% 7.计算本次调度的配对用户
     
-    H = [Users(strong_users).h].';  % #strong_users 个波束赋形向量 #strong_users x Nt
+    schedule_pairs = cal_priority();
+    
+    %% 5.波束赋形
+    zfbf_users = zeors(1, length(schedule_pairs));
+    
+    for i = 1:1:length(schedule_pairs)
+        p = schedule_pairs(i);
+        strong = Pairs(p).pair(1);
+        zfbf_users(i) = strong;
+    end
+    
+    H = [Users(zfbf_users).h].';  % #strong_users 个波束赋形向量 #strong_users x Nt
     W = pinv(H);                   % hm*wn/|hm| = 0 if m≠n else 1
-    for p = 1:length(Pairs)
+    for p = schedule_pairs
         strong = Pairs(p).pair(1);  % strong user
         Users(strong).w = W(:,p);
     end
@@ -112,10 +123,6 @@ for tti = 1:1:P.time
     
     power_fix();
     
-    %% 7.计算本次调度的配对用户
-    
-    schedule_pairs = cal_priority();
-    
     %% 8.计算速率
     
     for p = schedule_pairs
@@ -127,10 +134,10 @@ for tti = 1:1:P.time
             pl1 = Users(u1).pathloss;
             w   = Users(u1).w;
             a1  = Users(u1).a;
-            I             = cal_interference(u1, p);
-            Gammma        = pl1*(norm(h1*w))^2*a1*P.tx_power / ...
+            I   = cal_interference(u1, p);
+            Gammma = pl1*(norm(h1*w))^2*a1*P.tx_power / ...
                 (P.noise_power + I);
-            SINR          = 10*log10(Gammma);
+            SINR = 10*log10(Gammma);
             Users(u1).rate = 0.5*P.sys_bandwidth*log2(1+Gammma);
             sum_rate(p) = Users(u1).rate;
         else  %% noma
@@ -143,24 +150,24 @@ for tti = 1:1:P.time
             a2  = Users(u2).a;
             
             % cal strong user's rate
-            I1            = cal_interference(u1, p);
-            Gamma1_x2     = (pl1*norm(h1*w)^2*a2*P.tx_power) / ...
+            I1 = cal_interference(u1, p);
+            Gamma1_x2 = (pl1*norm(h1*w)^2*a2*P.tx_power) / ...
                 (P.noise_power + pl1*norm(h1*w)^2*a1*P.tx_power + I1);
-            SINR1_x2      = 10*log10(Gamma1_x2);  % dB
+            SINR1_x2 = 10*log10(Gamma1_x2);  % dB
             Gamma1_x1_sic = (pl1*norm(h1*w)^2*a1*P.tx_power) / ...
                 (P.noise_power + I1);
-            SINR1_x1_sic  = 10*log10(Gamma1_x1_sic);  % dB
+            SINR1_x1_sic = 10*log10(Gamma1_x1_sic);  % dB
             Gamma1_x1_err = (pl1*norm(h1*w)^2*a1*P.tx_power) / ...
                 (P.noise_power + pl1*norm(h1*w)^2*a2*P.tx_power + I1);
-            SINR1_x1_err  = 10*log10(Gamma1_x1_err);  % dB
+            SINR1_x1_err = 10*log10(Gamma1_x1_err);  % dB
             Users(u1).rate = P.sys_bandwidth*((1-P.ber)*log2(1+Gamma1_x1_sic) + ...
                 P.ber*log2(1+Gamma1_x1_err));
             
             % cal weak user's rate
-            I2            = cal_interference(u2, p);
-            Gamma2_x2     = pl2*norm(h2*w)^2*a2*P.tx_power / ...
+            I2 = cal_interference(u2, p);
+            Gamma2_x2 = pl2*norm(h2*w)^2*a2*P.tx_power / ...
                 (P.noise_power + pl2*norm(h2*w)^2*a1*P.tx_power + I2);
-            SINR2         = 10*log10(Gamma2_x2);  % dB
+            SINR2 = 10*log10(Gamma2_x2);  % dB
             Users(u2).rate = P.sys_bandwidth*log2(1+Gamma2_x2);
             
             sum_rate(p) = Users(u1).rate + Users(u2).rate;
@@ -169,8 +176,8 @@ for tti = 1:1:P.time
 end
 
 
-disp('Sum Rate = M/Hz/s');
-disp(sum(sum_rate) / 10^6);
+% disp('Sum Rate = M/Hz/s');
+% disp(sum(sum_rate) / 10^6);
 
 %% 9.画图
 
