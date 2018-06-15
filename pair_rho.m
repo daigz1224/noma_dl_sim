@@ -49,7 +49,7 @@ while any(tmp(:))
     tmp(:,weak) = 0;
 end
 
-% 将剩下没有配对的用户单独一簇
+% 将剩下没有配对的用户单独一组
 users_all = 1:P.nums;
 users_noma = [Pairs(1:p-1).pair];
 users_oma = setdiff(users_all, users_noma);
