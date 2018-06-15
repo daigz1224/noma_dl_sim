@@ -17,14 +17,14 @@ P.noise_density_dB = -169;       % dBm/Hz
 P.Nr               = 1;
 P.Nt               = 32;   % 基站天线数
 P.nums             = 100;  % 用户数
-P.pair_mode        = 2;  % | 0 - none | 1 - random | 2 - rho | 3 - kmeans |
-P.schedule_mode    = 0;  % | 0 - in turn | 1 - PF  |
-P.power_allocation = 0;  % | 0 - fix | 1 - fair |
+P.pair_mode        = 2;    % | 0 - none | 1 - random | 2 - rho | 3 - kmeans |
+P.schedule_mode    = 1;    % | 0 - round | 1 - PF  |
+P.power_allocation = 0;    % | 0 - fix | 1 - fair |
 P.rho              = 0.95;                % for pair_rho
-P.K                = ceil(0.4 * P.nums);  % for pair_kmeans
-P.alpha = 0.2;  % 功率分配因子 (0, 0.5) for strong user
+P.K                = ceil(0.1 * P.nums);  % for pair_kmeans
+P.alpha = 0.2;   % 功率分配因子 (0, 0.5) for strong user
 P.ber   = 0.001;
-P.time   = 100;  % 仿真时间 ms
+P.time  = 100;  % 仿真时间 ms
 
 % 计算部分参数
 P.tx_power      = 10^(P.tx_power_dB / 10);  % dB2lin mW
@@ -48,9 +48,9 @@ rng(987654321);
 [Users(1:P.nums).partner]    = deal(0);
 [Users(1:P.nums).rate]       = deal(zeros(1, P.time));
 
-sum_rate = deal(0);
+sum_rate = deal(zeros(1, P.time));
 
-%% 3. 撒点
+%% 3.撒点
 for u = 1:P.nums
     a = rand()*2*pi;  % 随机生成角度 a∈(0,2*pi)
     if (a > pi/3 && a < 2*pi/3) || (a > 4*pi/3 && a < 5*pi/3)
@@ -93,17 +93,26 @@ switch P.pair_mode
         [ strong_users, users_noma, users_oma ] = pair_kmeans(P.K);
 end
 
+%% 5.功率分配
+
+switch P.power_allocation
+    case 0
+        power_fix();
+    case 1
+        power_fair();
+end
+
 for tti = 1:1:P.time
     
-    %% 7.计算本次调度的配对用户
+    %% 6.调度
     switch P.schedule_mode
         case 0
-            schedule_pairs = schedule_in_turn(tti);
+            schedule_pairs = schedule_round(tti);
         case 1
-            schedule_pairs = schedule_PF();
+            schedule_pairs = schedule_PF(tti);
     end
     
-    %% 5.波束赋形
+    %% 7.波束赋形
     zfbf_users = zeros(1, length(schedule_pairs));
     
     for i = 1:1:length(schedule_pairs)
@@ -126,15 +135,6 @@ for tti = 1:1:P.time
         Users(u).test_hW = (h/norm(h))*W;
     end
     
-    %% 6.功率分配
-    
-    switch P.power_allocation
-        case 0
-            power_fix();
-        case 1
-            power_fair();    
-    end
-    
     %% 8.计算速率
     
     for p = schedule_pairs
@@ -149,12 +149,12 @@ for tti = 1:1:P.time
             
             I   = cal_interference(u1, p);
             
-            Gammma = pl1*(norm(h1*w))^2*a1*P.tx_power / ...
+            Gamma = pl1*(norm(h1*w))^2*a1*P.tx_power / ...
                 (P.noise_power + I);
             
-            SINR = 10*log10(Gammma);
+            SINR = 10*log10(Gamma);
             
-            Users(u1).rate = 0.5*P.sys_bandwidth*log2(1+Gammma);
+            Users(u1).rate = 0.5*P.sys_bandwidth*log2(1+Gamma);
             
             sum_rate(p) = Users(u1).rate;
         else  %% noma
@@ -197,14 +197,14 @@ for tti = 1:1:P.time
             
             Users(u2).rate(tti) = P.sys_bandwidth*log2(1+Gamma2_x2);
             
-            sum_rate(tti) = Users(u1).rate(tti) + Users(u2).rate(tti);  %
+            sum_rate(tti) = sum_rate(tti) + Users(u1).rate(tti) + Users(u2).rate(tti);  % 每个时刻的和速率
         end
     end  % end for p = schedule_pairs
 end  % end for tti = 1:1:P.time
 
 
-% disp('Sum Rate = M/Hz/s');
-% disp(sum(sum_rate) / 10^6);
+disp('Average Sum Rate = M/Hz/s');
+disp(sum(sum_rate) / P.time / 10^6);
 
 %% 9.画图
 
@@ -243,3 +243,6 @@ for u = 1:P.nums
 end
 
 axis off;
+
+figure(2);
+plot(1:1:P.time, sum_rate);

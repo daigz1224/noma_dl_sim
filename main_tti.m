@@ -22,9 +22,9 @@ P.schedule_mode    = 1;    % | 0 - round | 1 - PF  |
 P.power_allocation = 0;    % | 0 - fix | 1 - fair |
 P.rho              = 0.95;                % for pair_rho
 P.K                = ceil(0.1 * P.nums);  % for pair_kmeans
-P.alpha = 0.2;  % 功率分配因子 (0, 0.5) for strong user
+P.alpha = 0.2;   % 功率分配因子 (0, 0.5) for strong user
 P.ber   = 0.001;
-P.time   = 100;  % 仿真时间 ms
+P.time  = 100;  % 仿真时间 ms
 
 % 计算部分参数
 P.tx_power      = 10^(P.tx_power_dB / 10);  % dB2lin mW
