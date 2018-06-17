@@ -7,16 +7,19 @@ global Cluster;
 
 % 随机选择 K 个用户作为 K 个簇的质心
 tmp = randperm(P.nums, K);
+
 for i = 1:1:length(tmp)
     Cluster(i).centroid = Users(tmp(i)).h.';
 end
 
 last_centroid = [Cluster(1:length(Cluster)).centroid];
 
-while (1)
+while 1
+    % 清空结果，方便重新计算
     for i = 1:1:length(Cluster)
        Cluster(i).fans = []; 
     end
+    
     % 计算每个用户到 K 个质心的相似度
     for u = 1:P.nums
         hu = Users(u).h.';
@@ -26,7 +29,8 @@ while (1)
             cos_vec(c) = norm(hu*hc') / norm(hu) / norm(hc);
         end
         [~, index] = max(cos_vec);
-        % 划分每个用户到相似度最高的质心
+        
+        % 添加用户到相似度最高的质心
         Cluster(index).fans = [Cluster(index).fans, u];
     end
     
@@ -40,17 +44,17 @@ while (1)
         mu = mu / length(fans);
         Cluster(c).centroid = mu;
     end
+    
+    % 如果分簇结果不再发生变化，就提前退出
     curr_centroid = [Cluster(1:length(Cluster)).centroid];
     if all(last_centroid == curr_centroid)
        break; 
-    else
-        last_centroid = curr_centroid;
     end
+    last_centroid = curr_centroid;
 end
 
 % 根据 Cluster 进行 pair
 p = 1;
-users_oma = [];
 for c = 1:1:length(Cluster)
     fans = Cluster(c).fans;
     pls = [];
