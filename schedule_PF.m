@@ -45,7 +45,10 @@ for p = 1:1:length(Pairs)
         ave_rate_u2 = (sum(Users(u2).rate)+10^-6) / tti;
         
         % 计算用户组的优先级
-        Pairs(p).priority = (rate_u1 + rate_u2) / (ave_rate_u1 + ave_rate_u2);
+        % Pairs(p).priority = (rate_u1 + rate_u2) / (ave_rate_u1 + ave_rate_u2);
+        % disp(rate_u1 / ave_rate_u1);
+        % disp(rate_u2 / ave_rate_u2);
+        Pairs(p).priority = rate_u1 / ave_rate_u1 + rate_u2 / ave_rate_u2;
     end
 end
 
