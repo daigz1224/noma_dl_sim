@@ -6,10 +6,10 @@ global Pairs;
 global Cluster;
 
 % 随机选择 K 个用户作为 K 个簇的质心
-tmp = randperm(P.nums, K);
+seed = randperm(P.nums, K);
 
-for i = 1:1:length(tmp)
-    Cluster(i).centroid = Users(tmp(i)).h.';
+for i = 1:1:length(seed)
+    Cluster(i).centroid = Users(seed(i)).h.';
 end
 
 last_centroid = [Cluster(1:length(Cluster)).centroid];
@@ -61,10 +61,10 @@ for c = 1:1:length(Cluster)
     for u = fans
         pls = [pls, Users(u).pathloss];
     end
-    [tmp, index] = sort(pls);
-    span = length(tmp)/2;
+    [seed, index] = sort(pls);
+    span = length(seed)/2;
     for i = 1:1:span
-        strong = fans(index(length(tmp)-i+1));
+        strong = fans(index(length(seed)-i+1));
         weak = fans(index(i));
         Pairs(p).pair = [strong, weak];
         Pairs(p).strong_user = strong;

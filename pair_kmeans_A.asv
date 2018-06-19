@@ -11,23 +11,23 @@ Cluster(1).centroid = Users(seed).h.';
 
 % 计算每个用户到所有质心的相似度
 
+cos_vec = zeros(P.nums, length(Cluster));
+selected_rate = zeros(P.nums, length(Cluster));
+
 for u = 1:P.nums
     hu = Users(u).h.';
-    
-    cos_vec = zeros(1, length(Cluster));
-    selected_rate = zeros(1, P.nums);
     for c = 1:1:length(Cluster)
         hc = Cluster(c).centroid;
-        cos_vec(c) = norm(hu*hc') / norm(hu) / norm(hc);
+        cos_vec(u,c) = norm(hu*hc') / norm(hu) / norm(hc);
     end
     [~, index] = max(cos_vec(u,:));
-    selected_rate(u) = cos_vec(index)^2;
     
     % 添加用户到相似度最高的质心
     Cluster(index).fans = [Cluster(index).fans, u];
 end
 
-[~, next] = max(selected_rate);
+for 
+
 
 end
 
