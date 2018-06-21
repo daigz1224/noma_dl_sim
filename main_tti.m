@@ -18,14 +18,16 @@ P.Nr               = 1;
 P.Nt               = 32;   % 基站天线数
 P.nums             = 100;  % 用户数
 P.drop_mode        = 1;    % | 0 - rand | 1 - pcp |
-P.pair_mode        = 2;    % | 0 - none | 1 - random | 2 - rho | 3 - kmeans |
+P.move_mode        = 0;    % | 0 - still | 1 - move |
+P.speed            = 3;    % km/h for move
+P.pair_mode        = 3;    % | 0 - none | 1 - random | 2 - rho | 3 - kmeans |
 P.schedule_mode    = 1;    % | 0 - round | 1 - PF  |
 P.power_mode       = 0;    % | 0 - fix | 1 - fair |
 P.rho              = 0.95;                % for pair_rho
-P.K                = ceil(0.1 * P.nums);  % for pair_kmeans
-P.alpha = 0.2;   % 功率分配因子 (0, 0.5) for strong user
-P.ber   = 0.001;
-P.time  = 1000;  % 仿真时间 ms
+P.K                = floor(sqrt(P.nums));  % for pair_kmeans
+P.alpha            = 0.2;   % 功率分配因子 (0, 0.5) for strong user
+P.ber              = 0.001;
+P.time             = 300;  % 仿真时间 ms
 
 % 计算部分参数
 P.tx_power      = 10^(P.tx_power_dB / 10);  % dB2lin mW

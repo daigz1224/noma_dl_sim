@@ -10,10 +10,8 @@ seed = randperm(P.nums, 1);
 Cluster(1).centroid = Users(seed).h.';
 
 % 计算每个用户到所有质心的相似度
-
 for u = 1:P.nums
     hu = Users(u).h.';
-    
     cos_vec = zeros(1, length(Cluster));
     selected_rate = zeros(1, P.nums);
     for c = 1:1:length(Cluster)
@@ -28,6 +26,11 @@ for u = 1:P.nums
 end
 
 [~, next] = max(selected_rate);
+
+
+
+% 根据 Cluster 进行 pair
+
 
 end
 
