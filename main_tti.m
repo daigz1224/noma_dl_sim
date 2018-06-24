@@ -17,16 +17,22 @@ P.noise_density_dB = -169;       % dBm/Hz
 P.Nr               = 1;
 P.Nt               = 32;   % 基站天线数
 P.nums             = 100;  % 用户数
+% drop_mode
 P.drop_mode        = 1;    % | 0 - rand | 1 - pcp |
+% move_mode
 P.move_mode        = 0;    % | 0 - still | 1 - move |
 P.speed            = 3;    % km/h for move
-P.pair_mode        = 3;    % | 0 - none | 1 - random | 2 - rho | 3 - kmeans |
-P.schedule_mode    = 1;    % | 0 - round | 1 - PF  |
-P.power_mode       = 0;    % | 0 - fix | 1 - fair |
-P.rho              = 0.95;                % for pair_rho
+% pair_mode
+P.pair_mode        = 2;    % | 0 - none | 1 - random | 2 - rho | 3 - kmeans |
+P.rho              = 0.99;                % for pair_rho
 P.K                = floor(sqrt(P.nums));  % for pair_kmeans
+% schedule_mode
+P.schedule_mode    = 0;    % | 0 - round | 1 - PF  |
+% power_mode
+P.power_mode       = 0;    % | 0 - fix | 1 - fair |
 P.alpha            = 0.2;   % 功率分配因子 (0, 0.5) for strong user
-P.ber              = 0.001;
+
+P.ber              = 0.00001;
 P.time             = 300;  % 仿真时间 ms
 
 % 计算部分参数
@@ -133,7 +139,7 @@ for tti = 1:1:P.time
                 (P.noise_power + I);
             
             SINR = 10*log10(Gamma);
-            
+            Users(u1).SINR(tti) = SINR;
             Users(u1).rate = 0.5*P.sys_bandwidth*log2(1+Gamma);
             
             sum_rate(tti) = Users(u1).rate;
@@ -164,6 +170,7 @@ for tti = 1:1:P.time
             
             SINR1_x1_err = 10*log10(Gamma1_x1_err);  % dB
             
+            Users(u1).SINR(tti) = SINR1_x1_sic;
             Users(u1).rate(tti) = P.sys_bandwidth*((1-P.ber)*log2(1+Gamma1_x1_sic) + ...
                 P.ber*log2(1+Gamma1_x1_err));
             
@@ -175,6 +182,7 @@ for tti = 1:1:P.time
             
             SINR2 = 10*log10(Gamma2_x2);  % dB
             
+            Users(u2).SINR(tti) = SINR2;
             Users(u2).rate(tti) = P.sys_bandwidth*log2(1+Gamma2_x2);
             
             sum_rate(tti) = sum_rate(tti) + Users(u1).rate(tti) + Users(u2).rate(tti);  % 每个时刻的和速率
