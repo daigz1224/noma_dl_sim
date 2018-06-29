@@ -15,8 +15,8 @@ P.sys_bandwidth    = 4.32*10^6;  % Hz
 P.tx_power_dB      = 43;         % dBm
 P.noise_density_dB = -169;       % dBm/Hz
 P.Nr               = 1;
-P.Nt               = 32;   % 基站天线数
-P.nums             = 100;  % 用户数
+P.Nt               = 8;   % 基站天线数
+P.nums             = 30;  % 用户数
 % drop_mode
 P.drop_mode        = 1;    % | 0 - rand | 1 - pcp |
 % move_mode
@@ -190,9 +190,7 @@ for tti = 1:1:P.time
     end  % end for p = schedule_pairs
 end  % end for tti = 1:1:P.time
 
-
-disp('Average Sum Rate = M/Hz/s');
-disp(sum(sum_rate) / P.time / 10^6);
+fprintf('Average Sum Rate = %f M/Hz/s\n', sum(sum_rate) / P.time / 10^6);
 
 %% 9.画图
 
